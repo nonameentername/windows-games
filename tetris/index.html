@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Windows Games</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background: #17191c;
+      overflow: hidden;
+    }
+    #canvas {
+      display: block;
+      width: min(100vw, 100vh, 500px);
+      height: min(100vw, 100vh, 500px);
+      max-width: 500px;
+      max-height: 500px;
+      background: #000;
+      outline: 1px solid #3a3f46;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+  <script>
+    var Module = {
+      canvas: document.getElementById("canvas"),
+      print: function(text) { console.log(text); },
+      printErr: function(text) { console.error(text); }
+    };
+    Module.canvas.addEventListener("click", function() { Module.canvas.focus(); });
+  </script>
+  <script async type="text/javascript" src="index.js"></script>
+</body>
+</html>
