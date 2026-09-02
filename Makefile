@@ -4,7 +4,7 @@ all:
 	$(MAKE) -C tetris
 
 deb-dep:
-	sudo apt-get install make mingw-w64
+	sudo apt-get install -y make build-essential pkg-config libsdl2-dev
 
 clean: $(SUBDIRS)
 	$(MAKE) -C battleship $@
