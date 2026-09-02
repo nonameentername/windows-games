@@ -549,7 +549,7 @@ static void line_and         (int, int, int, int);
 static void line_or          (int, int, int, int);
 static void line_not         (int, int, int, int);
 static void line_fill        (int, int, int, int);
-static void _floodfill       (int, int, int);
+static void _floodfill       (int, int, unsigned int);
 static void _setcolor        (int);
 
 static void line_fast        (int, int, int, int);
@@ -1725,11 +1725,12 @@ static void ff_putpixel (int x, int y)
 // the following code is adapted from
 // https://lodev.org/cgtutor/floodfill.html
 
-void _floodfill (int x, int y, int border)
+void _floodfill (int x, int y, unsigned int border)
 {
   int
     x1,
-    sl_x1, sl_x2, // scanline X coordinates
+    sl_x1, sl_x2; // scanline X coordinates
+  unsigned int
     oldcol = getpixel (x, y);
   
   // draw current scanline from start position to the right
@@ -1784,17 +1785,32 @@ void floodfill (int x, int y, int border)
   check_initgraph ();
   
   unsigned int
-    oldcol;
+    oldcol,
+    bordercol,
+    fillcol;
   int
     tmp_pattern,
     tmp_color;
+  
+  if (-1 == border)
+    bordercol = bgi_argb_palette[ARGB_TMP_COL];
+  else if (border >= ARGB_FG_COL && border <= ARGB_TMP_COL)
+    bordercol = bgi_argb_palette[border];
+  else
+    bordercol = border;
+
+  if (bgi_fill_style.color >= ARGB_FG_COL &&
+      bgi_fill_style.color <= ARGB_TMP_COL)
+    fillcol = bgi_argb_palette[bgi_fill_style.color];
+  else
+    fillcol = bgi_fill_style.color;
   
   oldcol = getpixel (x, y);
   
   // the way the above implementation of floodfill works,
   // the fill colour must be different from the background color
   
-  if (oldcol == border || oldcol == bgi_fill_style.color ||
+  if (oldcol == bordercol || oldcol == fillcol ||
       x < 0 || x > vp.right - vp.left || // out of viewport/window?
       y < 0 || y > vp.bottom - vp.top)
     return;
@@ -1803,7 +1819,7 @@ void floodfill (int x, int y, int border)
   // the same in the area to be filled and in the fill pattern.
   
   if (SOLID_FILL == bgi_fill_style.pattern) {
-    _floodfill (x, y, border);
+    _floodfill (x, y, bordercol);
     return;
   }
   
@@ -1822,21 +1838,21 @@ void floodfill (int x, int y, int border)
       for (int i = BLACK; i < MAXCOLORS + 1; i++) {
 	bgi_fill_style.color = i;
 	if (oldcol != bgi_fill_style.color &&
-	    border != bgi_fill_style.color &&
+	    bordercol != bgi_fill_style.color &&
 	    tmp_color != bgi_fill_style.color)
 	  break;
       }
       
       // solid fill...
-      _floodfill (x, y, border);
+      _floodfill (x, y, bordercol);
       
       // ...then pattern fill
       bgi_fill_style.pattern = tmp_pattern;
       bgi_fill_style.color = tmp_color;
-      _floodfill (x, y, border);
+      _floodfill (x, y, bordercol);
     } // if
     else
-      _floodfill (x, y, border);
+      _floodfill (x, y, bordercol);
     
   } // else
   
@@ -3576,12 +3592,13 @@ void pieslice (int x, int y, int stangle, int endangle, int radius)
   // Draws and fills a pie slice centered at (x, y), with a radius
   // given by radius, traveling from stangle to endangle.
   
-  // quick and dirty for now, Bresenham-based later (maybe)
-  
   check_initgraph ();
   
   int
-    angle;
+    angle,
+    oldcolor,
+    x1, y1,
+    x2, y2;
   
   if (0 == radius || stangle == endangle)
     return;
@@ -3589,30 +3606,33 @@ void pieslice (int x, int y, int stangle, int endangle, int radius)
   if (endangle < stangle)
     endangle += 360;
   
-  if (0 == radius)
-    return;
-  
   bgi_last_arc.x = x;
   bgi_last_arc.y = y;
-  bgi_last_arc.xstart = x + (radius * cos (stangle * PI_CONV));
-  bgi_last_arc.ystart = y - (radius * sin (stangle * PI_CONV));
-  bgi_last_arc.xend = x + (radius * cos (endangle * PI_CONV));
-  bgi_last_arc.yend = y - (radius * sin (endangle * PI_CONV));
+  bgi_last_arc.xstart = x + floor (0.5 + (radius * cos (stangle * PI_CONV)));
+  bgi_last_arc.ystart = y - floor (0.5 + (radius * sin (stangle * PI_CONV)));
+  bgi_last_arc.xend = x + floor (0.5 + (radius * cos (endangle * PI_CONV)));
+  bgi_last_arc.yend = y - floor (0.5 + (radius * sin (endangle * PI_CONV)));
   
-  for (angle = stangle; angle < endangle; angle++)
-    line_fast (x + (radius * cos (angle * PI_CONV)),
-               y - (radius * sin (angle * PI_CONV)),
-               x + (radius * cos ((angle+1) * PI_CONV)),
-               y - (radius * sin ((angle+1) * PI_CONV)));
+  oldcolor = bgi_fg_color;
+  
+  for (angle = stangle; angle <= endangle; angle++) {
+    x1 = x + floor (0.5 + (radius * cos (angle * PI_CONV)));
+    y1 = y - floor (0.5 + (radius * sin (angle * PI_CONV)));
+    line_fill (x, y, x1, y1);
+  }
+  
+  _setcolor (oldcolor);
+  
+  for (angle = stangle; angle < endangle; angle++) {
+    x1 = x + floor (0.5 + (radius * cos (angle * PI_CONV)));
+    y1 = y - floor (0.5 + (radius * sin (angle * PI_CONV)));
+    x2 = x + floor (0.5 + (radius * cos ((angle + 1) * PI_CONV)));
+    y2 = y - floor (0.5 + (radius * sin ((angle + 1) * PI_CONV)));
+    line_fast (x1, y1, x2, y2);
+  }
+  
   line_fast (x, y, bgi_last_arc.xstart, bgi_last_arc.ystart);
   line_fast (x, y, bgi_last_arc.xend, bgi_last_arc.yend);
-  
-  angle = (stangle + endangle) / 2;
-  
-  // !!! FIXME: what if we're trying to fill an already filled pieslice?
-  floodfill (x + (radius * cos (angle * PI_CONV)) / 2,
-             y - (radius * sin (angle * PI_CONV)) / 2,
-             bgi_fg_color);
   
   update ();
   
@@ -4160,25 +4180,17 @@ void setlinestyle (int linestyle, unsigned upattern, int thickness)
 
 void setpalette (int colornum, int color)
 {
-  // Changes the standard palette entry 'colornum' to 'color';
-  // it also changes pixels onscreen.
-  
-  int
-    x, y;
-  
-  Uint32
-    oldcol, newcol;
+  // Changes the standard palette entry 'colornum' to 'color'.
+  // Keep already drawn pixels unchanged; these games use setpalette()
+  // as a temporary true-colour source for patterned fills.
   
   check_initgraph ();
   
   // handle negative colours?
-  if (colornum == color
-      || color < -1
-      || colornum < -1
+  if (color < -1
+      || colornum < 0
       || colornum > MAXCOLORS)
     return;
-  
-  oldcol = bgi_argb_palette[colornum];
   
   if (-1 == color) // user called COLOR()
     bgi_argb_palette[colornum] = bgi_argb_palette[ARGB_TMP_COL];
@@ -4190,16 +4202,6 @@ void setpalette (int colornum, int color)
       // use the new palette
       bgi_argb_palette[colornum] = bgi_std_palette[color];
   }
-  
-  // TODO: create a VGA-sized buffer of byte, each containing
-  // the code of the BGI color; then...
-  
-  newcol = bgi_argb_palette[colornum];
-  
-  for (x = 0; x < getmaxx (); x++)
-    for (y = 0; y < getmaxy (); y++)
-      if (oldcol == PIXEL (x, y))
-	PIXEL (x, y) = newcol;
   
 } // setpalette ()
 
