@@ -176,6 +176,7 @@ int main () {
 //cin >> name;
 
     initwindow(500,500);
+    sdlbgifast();
 
     settextstyle(0,0,10);
     outtextxy(20,160,"TETRIS");
