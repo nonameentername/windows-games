@@ -20,6 +20,12 @@ To build the games:
 
     make
 
+To build the browser versions:
+
+    make web
+
+The browser build outputs files under `build/web`. Serve that directory with a local web server and open one of the generated `.html` files.
+
 Optionally build using docker:
 
     docker compose build

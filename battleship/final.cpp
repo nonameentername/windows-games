@@ -67,6 +67,8 @@ void a();
 int main () {
 
     initwindow(500,500);
+    sdlbgifast();
+
     int count=0;
     int mx1,my1;
     char vorh;

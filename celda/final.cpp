@@ -546,6 +546,7 @@ int main () {
         item[a]=0;
 
     initwindow(500,500);
+    sdlbgifast();
 
 //start the title screen
 

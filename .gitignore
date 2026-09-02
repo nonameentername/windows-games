@@ -1,3 +1,9 @@
 *.exe
 *.o
 *.a
+build/
+public/SDL2_bgi.o
+public/battle_spaceship/
+public/celda/
+public/libSDL2_bgi.a
+public/tetris/
