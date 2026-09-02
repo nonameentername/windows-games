@@ -1,4 +1,6 @@
-#windows-games
+# windows-games
+
+These games were originally written for Windows but have since been ported over to SDL2
 
 ![Celda](./images/celda-1.png)
 ![Celda](./images/celda-2.png)
@@ -8,12 +10,11 @@
 ![Tetris](./images/tetris-1.png)
 ![Tetris](./images/tetris-2.png)
 
+This project uses SDL_bgi: https://sourceforge.net/projects/sdl-bgi/
 
-This project uses http://winbgim.codecutter.org/
+Requires the following dependencies:
 
-Requires the following depenencies:
-
-    sudo apt-get install make mingw-w64
+    sudo apt-get install -y make build-essential pkg-config libsdl2-dev
 
 To build the games:
 
@@ -21,11 +22,11 @@ To build the games:
 
 Optionally build using docker:
 
-    alias make='docker-compose run --rm make'
-    make
+    docker compose build
+    docker compose run --rm make
 
-The compiled games can then be run in windows or using wine:
+The compiled games can then be run in linux:
 
-    wine 'battleship/Battle Spaceship.exe'
-    wine celda/final.exe
-    wine tetris/tetris.exe
+    battleship/battle_spaceship.exe
+    celda/celda.exe
+    tetris/tetris.exe
