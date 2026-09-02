@@ -168,7 +168,7 @@ int main () {
     int end=0;
     int end2=0;
     int elcount=0;
-    char c;
+    int c;
     time_t t;
     srand((unsigned) time(&t));
 
@@ -327,7 +327,7 @@ int main () {
 
 //use keyboard
             if(end!=1) {
-                c = (char) getch( );
+                c = getch( );
                 switch (c) {
                 case KEY_UP: {
                     shape.move();

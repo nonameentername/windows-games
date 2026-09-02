@@ -530,7 +530,7 @@ int battle();
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int main () {
-    char c;
+    int c;
     time_t t;
     srand((unsigned) time(&t));
     end_game=0;
@@ -542,8 +542,6 @@ int main () {
     p_magic=0;
     x=0;
     y=0;
-    int count=0;
-
     for(int a=0; a<20; ++a)
         item[a]=0;
 
@@ -653,11 +651,8 @@ int main () {
 //use keyboard
     print();
     do {
-        c = (char) getch( );
-
-        {
-            c = (char) getch( );
-            switch (c) {
+        c = getch( );
+        switch (c) {
             case KEY_UP:
                 guy_y=guy_y-1;
                 if ((guy_y<0)&&(map_y>0)) {
@@ -709,7 +704,6 @@ int main () {
                 else if ((visual[guy_y][guy_x]==1)||(visual[guy_y][guy_x]==2)||(visual[guy_y][guy_x]==4)||(visual[guy_y][guy_x]==8)||(visual[guy_y][guy_x]==9))
                     guy_y=guy_y-1;
                 break;
-            }
         }
         print();
         items();
@@ -1170,7 +1164,6 @@ void map() {
 //                       items implementation
 void items() {
     int temp;
-    int a;
     setcolor(15);
 
     switch(mapitem[guy_y][guy_x]) {
@@ -2379,7 +2372,10 @@ void print2() {
     lineto(112,136);
     lineto(126,135);
     setfillstyle(1,12);
-    floodfill(129,157,COLOR(230,180,180));
+    {
+        int points[] = {126,135, 152,139, 156,150, 157,155, 157,160, 153,162, 154,165, 154,168, 149,178, 148,181, 149,186, 146,189, 123,185, 112,195, 90,168, 108,156, 112,136, 126,135};
+        fillpoly(18, points);
+    }
 //hair
     setcolor(COLOR(50,50,50));
     moveto(138,172);
@@ -2404,7 +2400,10 @@ void print2() {
     lineto(133,169);
     lineto(138,171);
     setfillstyle(1,0);
-    floodfill(135,142,COLOR(50,50,50));
+    {
+        int points[] = {138,172, 143,161, 151,159, 154,151, 163,144, 168,136, 126,127, 111,129, 106,132, 103,155, 103,168, 114,173, 121,174, 128,172, 123,169, 125,162, 130,158, 134,159, 136,161, 133,169, 138,171};
+        fillpoly(21, points);
+    }
 //shirt
     setcolor(COLOR(100,100,200));
     moveto(50,173);
@@ -2416,7 +2415,10 @@ void print2() {
     lineto(50,289);
     lineto(50,173);
     setfillstyle(1,1);
-    floodfill(90,233,COLOR(100,100,200));
+    {
+        int points[] = {50,173, 74,165, 89,165, 115,199, 125,223, 102,289, 50,289, 50,173};
+        fillpoly(8, points);
+    }
 //arms
     setcolor(COLOR(230,180,180));
     moveto(97,241);
@@ -2439,7 +2441,10 @@ void print2() {
     lineto(126,223);
     lineto(97,241);
     setfillstyle(1,12);
-    floodfill(144,262,COLOR(230,180,180));
+    {
+        int points[] = {97,241, 117,290, 146,290, 176,254, 185,242, 191,238, 201,221, 177,198, 172,204, 163,200, 161,207, 162,219, 161,228, 160,236, 139,246, 123,253, 136,246, 126,223, 97,241};
+        fillpoly(19, points);
+    }
 //sleves
     setcolor(COLOR(110,110,200));
     moveto(99,253);
@@ -2450,7 +2455,10 @@ void print2() {
     lineto(90,225);
     lineto(99,253);
     setfillstyle(1,1);
-    floodfill(111,228,COLOR(110,110,200));
+    {
+        int points[] = {99,253, 133,231, 121,207, 111,203, 93,211, 90,225, 99,253};
+        fillpoly(7, points);
+    }
 
     if(item[1]==1) {
 //shield
@@ -2470,7 +2478,10 @@ void print2() {
         lineto(134,290);
         lineto(224,290);
         setfillstyle(11,COLOR(0,0,200));
-        floodfill(195,268,COLOR(0,0,200));
+        {
+            int points[] = {224,290, 232,274, 238,245, 239,226, 214,220, 184,214, 158,217, 139,223, 120,231, 123,255, 124,270, 133,285, 134,290, 224,290};
+            fillpoly(14, points);
+        }
     }
 
     if(item[6]==1) {
@@ -2506,14 +2517,13 @@ void print2() {
 int battle() {
     int damage;
     int endbattle=0;
-    int p,c;
+    int p;
     print2();
     delay(2000);
 
     do {
         do {
             p=1;
-            c=0;
             print2();
             setcolor(15);
             rectangle(70,70,180,110);

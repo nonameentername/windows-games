@@ -452,7 +452,7 @@ void print() {
 
     for(int a=0; a<10; ++a) {
         for(int b=0; b<10; ++b) {
-            if (visual_p[a][b]!=0)
+            if (visual_p[a][b]!=0) {
                 if (visual_p[a][b]==-1) {
                     setlinestyle(0,-1,3);
                     setcolor(4);
@@ -472,6 +472,7 @@ void print() {
                     setcolor(2);
                     circle(35+(20*b),60+(20*a),5);
                 }
+            }
         }
 
 
